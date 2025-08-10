@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gypsum Ceiling Project Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <i class="fas fa-tasks logo-icon"></i>
+            <h1 class="project-name-container">
+                <input type="text" id="projectNameInput" value="New Gypsum Project" required>
+            </h1>
+            <p>Effortlessly coordinate gypsum tasks with other teams on site.</p>
+        </header>
+
+        <!-- Project Management Section: New Project, Select Project, Delete Project -->
+        <div class="project-management-section">
+            <h2>Manage Projects</h2>
+            <div class="project-actions">
+                <button type="button" id="newProjectBtn"><i class="fas fa-file-alt"></i> New Project</button>
+                <select id="projectSelector" class="project-select">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <button type="button" id="deleteProjectBtn" title="Delete Current Project"><i class="fas fa-trash-alt"></i> Delete</button>
+                <button type="button" id="viewDashboardBtn"><i class="fas fa-chart-line"></i> View Team Dashboard</button>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Add Project Areas & Tasks</h2>
+            <form id="projectForm">
+                <div id="areas-container">
+                    <!-- Area blocks will be dynamically added here -->
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="addAreaBtn"><i class="fas fa-plus"></i> Add New Area</button>
+                    <button type="submit" id="saveAllBtn"><i class="fas fa-save"></i> Save All</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Area-Specific Calendars (Moved to appear first) -->
+        <div class="area-calendars-container">
+            <h2>Area-Specific Calendars</h2>
+            <div id="legend-view">
+                <!-- Legend will be generated here -->
+            </div>
+            <div id="calendars-view">
+                <!-- Calendars will be generated here -->
+            </div>
+        </div>
+
+        <!-- Project Timeline Summary (Moved to appear after calendars) -->
+        <div class="summary-report">
+            <h2>Project Timeline Summary</h2>
+            <div id="report-view">
+                <!-- Summary report will be generated here -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="taskPopup" class="task-popup">
+        <div class="task-popup-content">
+            <span class="close-popup">&times;</span>
+            <h3 id="popupDate"></h3>
+            <ul id="popupTaskList"></ul>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Dashboard - Gypsum Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="style.css"> <!-- Reusing existing CSS -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <i class="fas fa-chart-line logo-icon"></i>
+            <h1>Team Activity Dashboard</h1>
+            <p>Overview of Gypsum Framing, Gypsum Board Installation, and Paint Team activities across all projects.</p>
+            <button type="button" id="backToPlannerBtn" class="back-button"><i class="fas fa-arrow-left"></i> Back to Planner</button>
+        </header>
+
+        <div class="team-calendars-container">
+            <!-- Calendars for specific teams will be rendered here by dashboard.js -->
+            <div id="gypsumFramingCalendar" class="team-calendar-section">
+                <h2>Gypsum - Framing Team Calendar</h2>
+                <div class="calendar-display"></div>
+            </div>
+
+            <div id="gypsumBoardInstallationCalendar" class="team-calendar-section">
+                <h2>Gypsum - Board Installation Team Calendar</h2>
+                <div class="calendar-display"></div>
+            </div>
+
+            <div id="paintTeamCalendar" class="team-calendar-section">
+                <h2>Paint Team Calendar</h2>
+                <div class="calendar-display"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Separate popup for the dashboard to avoid conflicts with main planner's popup -->
+    <div id="dashboardTaskPopup" class="task-popup">
+        <div class="task-popup-content">
+            <span class="close-popup">&times;</span>
+            <h3 id="dashboardPopupDate"></h3>
+            <ul id="dashboardPopupTaskList"></ul>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

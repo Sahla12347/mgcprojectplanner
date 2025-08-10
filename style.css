@@ -1,0 +1,526 @@
+:root {
+    --primary-color: #3b5998;
+    --secondary-color: #f0f2f5;
+    --background-color: #e9ebee;
+    --card-background: #ffffff;
+    --text-color: #1c1e21;
+    --border-color: #dddfe2;
+    --success-color: #4caf50;
+    --delete-color: #d32f2f;
+    --hover-background-light: #e0e0e0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--card-background);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header .logo-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+}
+
+h1, h2 {
+    color: var(--primary-color);
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.project-name-container input {
+    border: none;
+    background: transparent;
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+    color: var(--primary-color);
+    padding: 0;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.project-name-container input:focus {
+    outline: 2px solid var(--primary-color);
+    border-radius: 4px;
+}
+
+p {
+    color: #65676b;
+    margin-bottom: 30px;
+}
+
+/* Project Management Section */
+.project-management-section {
+    background: var(--secondary-color);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+}
+
+.project-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    align-items: center;
+    justify-content: center; /* Center buttons horizontally */
+}
+
+.project-select {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    min-width: 180px; /* Ensure it's wide enough */
+}
+
+#newProjectBtn {
+    background-color: #28a745; /* Green for new */
+}
+#newProjectBtn:hover {
+    background-color: #218838;
+}
+
+#deleteProjectBtn {
+    background-color: var(--delete-color); /* Red for delete */
+}
+#deleteProjectBtn:hover {
+    background-color: #c82333;
+}
+
+/* New dashboard button style */
+#viewDashboardBtn {
+    background-color: #17a2b8; /* Info color for dashboard */
+}
+
+#viewDashboardBtn:hover {
+    background-color: #138496;
+}
+
+
+.form-section {
+    background: var(--secondary-color);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+}
+
+.area-block {
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 8px;
+    background-color: var(--card-background);
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.area-block h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+.area-block .area-name-input {
+    width: calc(100% - 40px);
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.remove-area-btn {
+    background-color: transparent;
+    color: var(--delete-color);
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.2s ease-in-out;
+}
+.remove-area-btn:hover {
+    transform: scale(1.1);
+    color: #b71c1c;
+}
+
+.tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.task-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 30px;
+    gap: 10px;
+    align-items: center;
+}
+
+select, input[type="text"], input[type="date"] {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.team-name-input {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.remove-task-btn {
+    background-color: transparent;
+    color: #65676b;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease-in-out;
+}
+.remove-task-btn:hover {
+    background-color: var(--hover-background-light);
+    color: var(--delete-color);
+    transform: scale(1.1);
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: white;
+}
+
+#addAreaBtn {
+    background-color: #4caf50;
+}
+
+#addAreaBtn:hover {
+    background-color: #43a047;
+}
+
+#saveAllBtn {
+    background-color: var(--primary-color);
+}
+
+#saveAllBtn:hover {
+    background-color: #365187;
+}
+
+.add-task-btn {
+    background-color: var(--primary-color);
+    margin-top: 10px;
+}
+
+.add-task-btn:hover {
+    background-color: #365187;
+}
+
+/* Summary & Calendars Styling */
+#calendars-view, .team-calendars-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+.summary-report { /* Ensures this section has correct top margin after reordering */
+    margin-top: 40px;
+}
+
+
+.summary-report table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+.summary-report th, .summary-report td {
+    border: 1px solid var(--border-color);
+    padding: 12px;
+    text-align: left;
+}
+
+.summary-report th:first-child, .summary-report td:first-child {
+    width: 150px;
+}
+.summary-report th:nth-child(2), .summary-report td:nth-child(2) {
+    width: auto;
+}
+
+.summary-report th {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.task-item {
+    background-color: var(--secondary-color);
+    border-left: 5px solid;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-details {
+    flex-grow: 1;
+}
+
+/* Legend Styling */
+.legend-table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+.legend-table th {
+    text-align: left;
+    padding: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    border: 1px solid var(--border-color);
+}
+
+.legend-table td {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.color-swatch {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+/* Calendar Styling */
+.area-calendar, .team-calendar-section {
+    margin-bottom: 30px;
+}
+
+.calendar-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.calendar-header-month {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 8px 8px;
+    background-color: var(--card-background);
+}
+
+.day-of-week, .date-cell {
+    padding: 5px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    height: 60px;
+}
+
+.day-of-week {
+    background-color: var(--secondary-color);
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+/* --- FIX FOR MULTI-COLOR SWATCHES --- */
+.date-cell {
+    position: relative;
+    font-size: 0.8rem;
+    vertical-align: top;
+    padding: 2px;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.date-cell:hover {
+    background-color: var(--hover-background-light);
+}
+
+.date-number {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-weight: 600;
+    color: #65676b;
+    font-size: 0.7rem;
+}
+
+/* New container to manage the swatches below the date number */
+.task-swatches-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 15px; /* Pushes the swatches below the date number */
+    width: 100%;
+}
+
+.task-swatch {
+    display: block;
+    width: 100%;
+    height: 7px; /* Increased height for better visibility */
+    border-radius: 2px;
+}
+
+/* Task Popup Styling */
+.task-popup {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding-top: 60px;
+}
+
+.task-popup-content {
+    background-color: var(--card-background);
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.close-popup {
+    color: var(--text-color);
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-popup:hover, .close-popup:focus {
+    color: var(--delete-color);
+    text-decoration: none;
+}
+
+.task-popup-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.task-popup-content .task-item {
+    margin-bottom: 5px;
+    border-left: 5px solid;
+    padding-left: 10px;
+}
+
+/* Team Colors for tasks and calendars */
+.Gypsum { background-color: #4caf50; border-left-color: #4caf50; }
+.Wiring { background-color: #e65100; border-left-color: #e65100; }
+.AC { background-color: #00bcd4; border-left-color: #00bcd4; }
+.Lighting { background-color: #ffc107; border-left-color: #ffc107; }
+.Paint { background-color: #ffeb3b; border-left-color: #ffeb3b; }
+.Other { background-color: #795548; border-left-color: #795548; }
+
+/* Dashboard Specific Styles */
+.back-button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.back-button:hover {
+    background-color: #365187;
+}
+
+.back-button .fas {
+    margin-right: 8px;
+}
+
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    .task-row {
+        grid-template-columns: 1fr;
+    }
+    .form-actions, .project-actions {
+        flex-direction: column;
+    }
+    #calendars-view, .team-calendars-container {
+      grid-template-columns: 1fr;
+    }
+    .day-of-week, .date-cell {
+        height: 40px;
+        font-size: 0.7rem;
+        padding: 2px;
+    }
+    .date-number {
+        font-size: 0.6rem;
+    }
+}

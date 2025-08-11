@@ -17,17 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectSelector = document.getElementById('projectSelector');
     const deleteProjectBtn = document.getElementById('deleteProjectBtn');
     const viewDashboardBtn = document.getElementById('viewDashboardBtn'); 
-    const downloadPageBtn = document.getElementById('downloadPageBtn'); // New button
+    const downloadPageBtn = document.getElementById('downloadPageBtn'); 
 
     let currentProjectId = null; 
     let allProjects = {}; 
     let projectDeadlines = []; 
 
     // UPDATED: Default teams list (Gypsum framing and board installation removed)
+    // "Gypsum - Custom Team" is a placeholder for users to know they can type custom gypsum teams
     const defaultTeams = [
-        "Gypsum - Custom Team", // A placeholder to guide user for custom gypsum teams
+        "Gypsum - Custom Team", 
         "Wiring Team", "AC Team",
-        "Lighting Team", "Paint Team" 
+        "Lighting Team", "Paint Team",
+        "Other" // General 'Other' for any non-listed team
     ];
 
     // Helper to generate a unique ID
@@ -53,26 +55,37 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Temporarily hide elements that shouldn't be in the screenshot (like the button itself or popups)
             downloadPageBtn.style.display = 'none';
-            // If there are other popups or overlays, hide them here
-            const currentPopup = document.querySelector('.task-popup');
-            if (currentPopup) currentPopup.style.display = 'none';
+            // Hide all task popups by checking their current display style
+            const allPopups = document.querySelectorAll('.task-popup');
+            allPopups.forEach(popup => {
+                if (popup.style.display === 'block') { // Only hide if visible
+                    popup.dataset.wasVisible = 'true'; // Mark it so we can restore it later
+                    popup.style.display = 'none';
+                }
+            });
 
 
             const canvas = await html2canvas(document.body, {
                 scale: 2, // Capture at a higher resolution for better quality
-                useCORS: true, // Required for images loaded from external sources
+                useCORS: true, // Required for images loaded from external sources (if any)
                 windowWidth: document.documentElement.offsetWidth,
                 windowHeight: document.documentElement.offsetHeight,
-                scrollX: 0, // Capture from the top-left corner
+                scrollX: 0, // Capture from the top-left corner of the scroll area
                 scrollY: 0,
-                // Ensure the whole body is rendered, handle scrolling if necessary
+                // Ensure the whole body is rendered, including content that might be off-screen
                 height: document.body.scrollHeight,
                 width: document.body.scrollWidth,
             });
 
             // Restore hidden elements
             downloadPageBtn.style.display = '';
-            if (currentPopup) currentPopup.style.display = '';
+            // Restore only previously visible popups
+            allPopups.forEach(popup => {
+                if (popup.dataset.wasVisible === 'true') {
+                    popup.style.display = 'block';
+                    delete popup.dataset.wasVisible; // Clean up the temporary attribute
+                }
+            });
 
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
@@ -100,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Project Data Management Functions ---
 
+    // Saves the current project data to local storage
     const saveCurrentProject = () => {
         if (!currentProjectId) return; 
 
@@ -140,8 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // Debounced version for autosaving on input
     const debouncedSave = debounce(saveCurrentProject, 1000);
 
+    // Loads a project by its ID and renders it
     const loadProject = (projectId) => {
         if (!allProjects[projectId]) {
             console.error(`Project with ID ${projectId} not found.`);
@@ -159,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('currentProjectId', currentProjectId);
     };
 
+    // Creates a new, empty project
     const createNewProject = (defaultName = 'New Gypsum Project') => {
         const newId = generateUUID();
         allProjects[newId] = {
@@ -167,10 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         loadProject(newId); 
         areasContainer.innerHTML = ''; 
-        createAreaBlock(); 
+        createAreaBlock(); // Add a default empty area for the new project
         saveCurrentProject(); 
+        renderProject(); // Re-render everything for the new project
     };
 
+    // Deletes the current active project
     const deleteCurrentProject = () => {
         if (!currentProjectId || !allProjects[currentProjectId]) {
             alert("No project selected to delete.");
@@ -204,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
+    // Initializes the projects from local storage or creates a default one
     const initializeProjects = () => {
         try {
             const storedProjects = localStorage.getItem('allProjects');
@@ -231,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Updates the project selector dropdown with current projects
     const updateProjectSelector = () => {
         projectSelector.innerHTML = ''; 
         const projectIds = Object.keys(allProjects);
@@ -258,10 +279,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI Rendering Functions ---
 
+    // Creates the team selection dropdown, dynamically including custom Gypsum teams
     function createTeamSelect(selectedValue = '') {
-        // Dynamically get all unique "Gypsum Team" names from local storage
-        // This is a simplified approach; in a larger app, this data might be managed more centrally
-        const allGypsumTeams = new Set();
+        const allUniqueTeams = new Set();
+        
+        // Add default non-Gypsum teams and the 'Paint Team'
+        const baseTeams = ["Wiring Team", "AC Team", "Lighting Team", "Paint Team"];
+        baseTeams.forEach(team => allUniqueTeams.add(team));
+        
+        // Add a guiding option for custom Gypsum teams
+        allUniqueTeams.add("Gypsum - Custom Team"); 
+
+        // Dynamically add all unique "Gypsum " teams (e.g., "Gypsum Isham") from local storage
         try {
             const storedProjects = localStorage.getItem('allProjects');
             if (storedProjects) {
@@ -269,42 +298,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (const projectId in projects) {
                     if (projects.hasOwnProperty(projectId)) {
                         projects[projectId].deadlines.forEach(task => {
-                            if (task.team.startsWith("Gypsum Team")) {
-                                allGypsumTeams.add(task.team);
+                            // Check if team starts with "Gypsum " but is not the placeholder itself
+                            if (task.team.startsWith("Gypsum ") && task.team !== "Gypsum - Custom Team") { 
+                                allUniqueTeams.add(task.team);
                             }
                         });
                     }
                 }
             }
         } catch (e) {
-            console.error("Error loading all Gypsum teams:", e);
+            console.error("Error loading all unique teams for dropdown:", e);
         }
 
-        const currentAvailableTeams = [...defaultTeams];
-        // Add dynamically found Gypsum teams to the current selection options
-        Array.from(allGypsumTeams).sort().forEach(team => {
-            if (!currentAvailableTeams.includes(team)) { // Avoid duplicates if a custom team name overlaps with default
-                currentAvailableTeams.push(team);
-            }
+        // Sort the unique team names alphabetically
+        const sortedTeams = Array.from(allUniqueTeams).sort();
+
+        let optionsHtml = '';
+        sortedTeams.forEach(team => {
+            optionsHtml += `<option value="${team}" ${team === selectedValue ? 'selected' : ''}>${team}</option>`;
         });
 
+        // Determine if selectedValue is a custom "Other" team that needs a text input
+        const isCustomOtherTeam = selectedValue && !sortedTeams.includes(selectedValue) && !selectedValue.startsWith("Gypsum "); 
 
-        const isCustomTeam = selectedValue && !currentAvailableTeams.includes(selectedValue) && !selectedValue.startsWith("Gypsum Team"); // Consider existing custom Gypsum Teams as part of valid selection
-
-        let options = currentAvailableTeams.map(team =>
-            `<option value="${team}" ${team === selectedValue ? 'selected' : ''}>${team}</option>`
-        ).join('');
-        
-        // If the selectedValue is a Gypsum Team (e.g., Gypsum Team 1), but not in the default list, keep it selected.
-        // Also allow 'Other' to be selected if it was the original selectedValue.
-        if (selectedValue && !currentAvailableTeams.includes(selectedValue)) {
-             options = `<option value="${selectedValue}" selected>${selectedValue}</option>` + options;
+        if (isCustomOtherTeam) {
+            return `<input type="text" class="team-name-input" value="${selectedValue}" required>`;
         }
+        
+        // If the selectedValue is a custom Gypsum team (e.g., "Gypsum Isham") 
+        // that exists in the current project but hasn't been added to `allUniqueTeams` yet (e.g., on first load), 
+        // ensure it's selected properly. This might happen before local storage is fully parsed for all teams.
+        if (selectedValue && selectedValue.startsWith("Gypsum ") && !sortedTeams.includes(selectedValue)) {
+             optionsHtml = `<option value="${selectedValue}" selected>${selectedValue}</option>` + optionsHtml;
+        }
+
 
         return `
             <select class="team-select" required>
                 <option value="">Select Team</option>
-                ${options}
+                ${optionsHtml}
                 <option value="Other" ${selectedValue === 'Other' ? 'selected' : ''}>Other</option>
             </select>
         `;
@@ -350,6 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
         projectNameInput.value = project.name;
         projectDeadlines = project.deadlines; 
 
+        // Clear and re-create all area blocks based on current projectDeadlines
+        areasContainer.innerHTML = '';
         if (projectDeadlines.length > 0) {
             const groupedTasks = projectDeadlines.reduce((acc, task) => {
                 if (!acc[task.area]) {
@@ -358,16 +392,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 acc[task.area].push(task);
                 return acc;
             }, {});
-            areasContainer.innerHTML = '';
             for (const area in groupedTasks) {
                 createAreaBlock(area, groupedTasks[area]);
             }
         } else {
-            areasContainer.innerHTML = '';
-            createAreaBlock(); 
+            createAreaBlock(); // Add a default empty area if no tasks
         }
+        
+        // Re-render calendars and reports
         renderAreaCalendars(); 
         renderReport();
+        updateProjectSelector(); // Ensure selector is updated with correct project name after edits
     }
 
     function renderReport() {
@@ -434,8 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul>
                 `;
                 tasksByArea[areaName].forEach(task => {
-                    // Check if the team name starts with "Gypsum Team" for consistent color mapping
-                    const teamClass = task.team.startsWith("Gypsum Team") ? "Gypsum" : (defaultTeams.includes(task.team) ? task.team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
+                    // Check if the team name starts with "Gypsum " for consistent color mapping
+                    const teamClass = task.team.startsWith("Gypsum ") ? "Gypsum" : (defaultTeams.includes(task.team) ? task.team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
                     reportHtml += `
                         <li class="task-item ${teamClass}">
                             <div class="task-details">
@@ -474,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const tasksByArea = {};
-        const allTeams = new Set();
+        const allTeams = new Set(); // Use a set to collect all unique team names for the legend
         projectDeadlines.forEach(task => {
             if (!tasksByArea[task.area]) {
                 tasksByArea[task.area] = [];
@@ -483,14 +518,18 @@ document.addEventListener('DOMContentLoaded', () => {
             allTeams.add(task.team);
         });
 
-        renderLegend([...allTeams]);
+        // Filter out "Gypsum - Custom Team" from legend if it was just a placeholder
+        const teamsForLegend = Array.from(allTeams).filter(team => team !== "Gypsum - Custom Team");
+        renderLegend(teamsForLegend);
 
         for (const areaName in tasksByArea) {
             const areaTasks = tasksByArea[areaName];
 
+            // Calculate the date range for the current area's tasks
             const minDate = new Date(Math.min(...areaTasks.map(t => new Date(t.startDate))));
             const maxDate = new Date(Math.max(...areaTasks.map(t => new Date(t.endDate))));
             
+            // Loop through each month within the tasks' date range
             let currentMonth = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
             const calendarContainer = document.createElement('div');
             calendarContainer.className = 'area-calendar';
@@ -525,28 +564,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tbody>
         `;
         
-        const renderedTeams = new Set(); // To track unique team classes/names rendered
+        const renderedTeamClasses = new Set(); // To ensure unique color blocks for the legend
+        
+        // Sort teams for consistent legend order
+        teams.sort((a,b) => a.localeCompare(b));
+
         teams.forEach(team => {
-            // Determine team class, prioritizing 'Gypsum' for Gypsum teams
-            const teamClass = team.startsWith("Gypsum Team") ? "Gypsum" : (defaultTeams.includes(team) ? team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
+            const teamClass = team.startsWith("Gypsum ") ? "Gypsum" : (defaultTeams.includes(team) ? team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
             
-            // Only add to legend if not already added (prevents duplicates for 'Gypsum' class)
-            if (!renderedTeams.has(teamClass)) {
+            // Only add to legend if this specific color class hasn't been added OR if it's an "Other" team
+            // and the exact team name hasn't been added (to show different custom "Other" teams)
+            if (!renderedTeamClasses.has(teamClass) || (teamClass === 'Other' && !renderedTeamClasses.has(team))) {
                 legendHtml += `
                     <tr>
                         <td><div class="color-swatch ${teamClass}"></div></td>
                         <td>${team}</td>
                     </tr>
                 `;
-                renderedTeams.add(teamClass);
-            } else if (teamClass === 'Other' && !renderedTeams.has(team)) { // Handle specific 'Other' team names
-                 legendHtml += `
-                    <tr>
-                        <td><div class="color-swatch ${teamClass}"></div></td>
-                        <td>${team}</td>
-                    </tr>
-                `;
-                renderedTeams.add(team);
+                renderedTeamClasses.add(teamClass);
+                if (teamClass === 'Other') renderedTeamClasses.add(team); // Add the specific custom 'Other' name to the set too
             }
         });
 
@@ -577,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         
         let currentDate = new Date(displayStartDate);
-        for (let i = 0; i < 42; i++) {
+        for (let i = 0; i < 42; i++) { // Render 6 weeks (42 days) to ensure a full calendar grid for the month
             const dateStr = currentDate.toISOString().slice(0, 10);
             const isCurrentMonth = currentDate.getMonth() === month && currentDate.getFullYear() === year;
 
@@ -591,8 +627,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             let colorSwatchesHtml = '';
+            // Only use unique team classes for swatches on a given day to avoid too many duplicate swatches
+            const teamsOnThisDay = new Set();
             tasksForDay.forEach(task => {
-                const teamClass = task.team.startsWith("Gypsum Team") ? "Gypsum" : (defaultTeams.includes(task.team) ? task.team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
+                const teamClass = task.team.startsWith("Gypsum ") ? "Gypsum" : (defaultTeams.includes(task.team) ? task.team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
+                teamsOnThisDay.add(teamClass);
+            });
+            Array.from(teamsOnThisDay).forEach(teamClass => {
                 colorSwatchesHtml += `<div class="task-swatch ${teamClass}"></div>`;
             });
 
@@ -622,13 +663,13 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'dashboard.html'; 
     });
 
-    downloadPageBtn.addEventListener('click', downloadPageAsImage); // New event listener for download button
+    downloadPageBtn.addEventListener('click', downloadPageAsImage); 
 
     projectSelector.addEventListener('change', (e) => {
         loadProject(e.target.value);
     });
 
-    // Auto-save on relevant input changes
+    // Event listeners for immediate re-rendering on input changes
     projectNameInput.addEventListener('input', () => {
         debouncedSave();
         renderProject(); // Re-render to reflect name change immediately
@@ -645,6 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addAreaBtn.addEventListener('click', () => {
         createAreaBlock();
         debouncedSave(); 
+        renderProject(); // Re-render immediately
     });
 
     projectForm.addEventListener('click', (e) => {
@@ -687,6 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Handle "Other" team selection (dropdown to text input field)
     projectForm.addEventListener('change', (e) => {
         if (e.target.classList.contains('team-select') && e.target.value === 'Other') {
             const selectElement = e.target;
@@ -695,43 +738,59 @@ document.addEventListener('DOMContentLoaded', () => {
             newTeamInput.type = 'text';
             newTeamInput.className = 'team-name-input';
             newTeamInput.value = ''; // Start empty for a new custom team name
-            newTeamInput.placeholder = "Enter new team name";
+            newTeamInput.placeholder = "Enter custom team name"; // Guide user
             newTeamInput.required = true;
             parent.replaceChild(newTeamInput, selectElement);
             newTeamInput.focus();
-            // No select() here as we want them to type a new name
             debouncedSave();
             renderProject(); // Re-render after changing to custom input
+        } else if (e.target.classList.contains('team-select') && e.target.value.startsWith("Gypsum - Custom Team")) {
+            // If "Gypsum - Custom Team" is selected, immediately switch to input mode
+            const selectElement = e.target;
+            const parent = selectElement.parentElement;
+            const newTeamInput = document.createElement('input');
+            newTeamInput.type = 'text';
+            newTeamInput.className = 'team-name-input';
+            newTeamInput.value = "Gypsum "; // Pre-fill "Gypsum " to encourage specific naming
+            newTeamInput.placeholder = "e.g., Gypsum Isham or Gypsum Team 1"; // Guide user
+            newTeamInput.required = true;
+            parent.replaceChild(newTeamInput, selectElement);
+            newTeamInput.focus();
+            newTeamInput.setSelectionRange(newTeamInput.value.length, newTeamInput.value.length); // Place cursor at end
+            debouncedSave();
+            renderProject();
         }
     });
 
+    // Handle blur event for custom team input (text input back to dropdown if not a valid custom name)
     projectForm.addEventListener('blur', (e) => {
         if (e.target.classList.contains('team-name-input')) {
             const inputElement = e.target;
-            // If the custom input is left empty or changed back to 'Other', revert to select
-            if (inputElement.value === 'Other' || inputElement.value.trim() === '') {
+            // If the custom input is left empty or set to 'Other'/'Gypsum - Custom Team', revert to select
+            if (inputElement.value.trim() === 'Other' || inputElement.value.trim() === '' || inputElement.value.trim() === 'Gypsum - Custom Team') {
                 const parent = inputElement.parentElement;
                 const newSelect = document.createElement('select');
                 newSelect.className = 'team-select';
                 newSelect.required = true;
-                // Re-create options, ensuring 'Other' is available
-                newSelect.innerHTML = createTeamSelect().replace(/<option value="">Select Team<\/option>/, ''); // Get options, remove initial blank one
-                newSelect.insertAdjacentHTML('afterbegin', '<option value="">Select Team</option>'); // Add back blank option at start
-                newSelect.value = 'Other'; // Set it back to Other
+                // Re-create options using the function to get the latest list
+                newSelect.innerHTML = createTeamSelect().replace(/<option value="">Select Team<\/option>/, ''); 
+                newSelect.insertAdjacentHTML('afterbegin', '<option value="">Select Team</option>'); 
+                newSelect.value = 'Other'; // Default back to 'Other' or 'Select Team'
                 parent.replaceChild(newSelect, inputElement);
             }
             debouncedSave();
             renderProject(); // Re-render to reflect input change
         }
-    }, true); 
+    }, true); // Use capture phase to ensure this runs before other click handlers
 
     saveAllBtn.addEventListener('click', (e) => {
         e.preventDefault(); 
         saveCurrentProject(); 
-        // No alert needed now.
+        // No alert needed now, the page will re-render to show changes
         renderProject(); 
     });
 
+    // Task Popup functionality for calendar cells
     calendarsView.addEventListener('click', (e) => {
         const clickedCell = e.target.closest('.date-cell');
         if (clickedCell) {
@@ -753,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 popupDate.textContent = `${formatDateForDisplay(dateStr)} - ${areaName}`;
                 popupTaskList.innerHTML = '';
                 tasksForDayAndArea.forEach(task => {
-                    const teamClass = task.team.startsWith("Gypsum Team") ? "Gypsum" : (defaultTeams.includes(task.team) ? task.team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
+                    const teamClass = task.team.startsWith("Gypsum ") ? "Gypsum" : (defaultTeams.includes(task.team) ? task.team.split(' ')[0].replace(/[^a-zA-Z]/g, '') : 'Other');
                     const listItem = document.createElement('li');
                     listItem.className = `task-item ${teamClass}`;
                     listItem.innerHTML = `

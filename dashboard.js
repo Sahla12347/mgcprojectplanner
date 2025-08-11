@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const backToPlannerBtn = document.getElementById('backToPlannerBtn');
-    const downloadDashboardBtn = document.getElementById('downloadDashboardBtn'); // New button
+    const downloadDashboardBtn = document.getElementById('downloadDashboardBtn'); 
 
     const dynamicTeamCalendarsContainer = document.getElementById('dynamicTeamCalendarsContainer');
     const noTeamsMessage = document.getElementById('noTeamsMessage');
@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const dashboardPopupDate = document.getElementById('dashboardPopupDate');
     const dashboardPopupTaskList = document.getElementById('dashboardPopupTaskList');
     const closeDashboardPopupBtn = dashboardTaskPopup.querySelector('.close-popup');
+
+    // These are the *types* of teams we want to display on the dashboard
+    // Any team starting with "Gypsum " will be grouped as "Gypsum" for coloring
+    // and then displayed with its full unique name.
+    const relevantTeamPrefixes = ["Gypsum ", "Paint Team"];
 
     // This mapping defines which CSS class to use for coloring a specific team type
     const teamClassMap = {
@@ -21,14 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getTeamClass = (teamName) => {
-        if (teamName.startsWith("Gypsum Team")) {
-            return teamClassMap["Gypsum"];
+        if (teamName.startsWith("Gypsum ")) {
+            return teamClassMap["Gypsum"]; // All Gypsum teams use the "Gypsum" class for color
         }
-        // For other predefined teams, split and use the first word or direct map
+        // For other predefined teams, use their direct map
         const mappedClass = teamClassMap[teamName];
         if (mappedClass) return mappedClass;
         
-        // Fallback for other teams not explicitly mapped but might exist
+        // Fallback for any other team not explicitly mapped
         return teamClassMap["Other"]; 
     };
 
@@ -47,8 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Temporarily hide elements that shouldn't be in the screenshot
             downloadDashboardBtn.style.display = 'none';
-            const currentPopup = document.querySelector('.task-popup');
-            if (currentPopup) currentPopup.style.display = 'none';
+            const allPopups = document.querySelectorAll('.task-popup');
+            allPopups.forEach(popup => {
+                if (popup.style.display === 'block') {
+                    popup.dataset.wasVisible = 'true';
+                    popup.style.display = 'none';
+                }
+            });
+
 
             const canvas = await html2canvas(document.body, {
                 scale: 2, 
@@ -63,7 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Restore hidden elements
             downloadDashboardBtn.style.display = '';
-            if (currentPopup) currentPopup.style.display = '';
+            allPopups.forEach(popup => {
+                if (popup.dataset.wasVisible === 'true') {
+                    popup.style.display = 'block';
+                    delete popup.dataset.wasVisible;
+                }
+            });
 
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/png');
@@ -88,13 +104,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (const projectId in projects) {
                     if (projects.hasOwnProperty(projectId)) {
                         const project = projects[projectId];
+                        // Only add tasks from relevant teams for dashboard display
                         project.deadlines.forEach(task => {
-                            // Store all tasks, will filter later for specific calendars
-                            allTasks.push({ 
-                                ...task, 
-                                projectName: project.name, 
-                                projectId: projectId 
-                            });
+                            const isRelevantGypsum = task.team.startsWith("Gypsum ");
+                            const isPaintTeam = task.team === "Paint Team";
+
+                            if (isRelevantGypsum || isPaintTeam) {
+                                allTasks.push({ 
+                                    ...task, 
+                                    projectName: project.name, 
+                                    projectId: projectId 
+                                });
+                            }
                         });
                     }
                 }
@@ -141,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentDate = new Date(displayStartDate);
         const calendarTasksData = {}; 
 
-        for (let i = 0; i < 42; i++) { // Render 6 weeks (42 days) for a full month view
+        for (let i = 0; i < 42; i++) { // Render 6 weeks (42 days) to ensure a full calendar grid for the month
             const dateStr = currentDate.toISOString().slice(0, 10);
             const isCurrentMonth = currentDate.getMonth() === currentMonth && currentDate.getFullYear() === currentYear;
 
@@ -180,13 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         calendarGridHtml += '</div>';
         calendarDisplay.innerHTML = calendarGridHtml;
-        targetContainer.appendChild(teamCalendarSection); // Add the whole section to the DOM
+        dynamicTeamCalendarsContainer.appendChild(teamCalendarSection); // Add the whole section to the DOM
 
         // Attach event listeners for popup
         calendarDisplay.querySelectorAll('.date-cell').forEach(cell => {
             cell.addEventListener('click', (e) => {
-                const dateClicked = e.currentTarget.dataset.date;
-                const teamClicked = e.currentTarget.dataset.team;
+                const dateClicked = e.target.closest('.date-cell').dataset.date; // Use closest to ensure click on swatch triggers it
+                const teamClicked = e.target.closest('.date-cell').dataset.team;
                 showDashboardTaskPopup(dateClicked, teamClicked, calendarTasksData[dateClicked]);
             });
         });
@@ -236,12 +257,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const uniqueTeamsFound = new Set();
         allTasksAcrossProjects.forEach(task => {
-            if (task.team.startsWith("Gypsum Team") || task.team === "Paint Team") {
+            if (task.team.startsWith("Gypsum ") || task.team === "Paint Team") {
                 uniqueTeamsFound.add(task.team);
             }
         });
 
-        // Sort unique teams for consistent display order
+        // Sort unique teams for consistent display order (alphabetical)
         const sortedUniqueTeams = Array.from(uniqueTeamsFound).sort();
 
         if (sortedUniqueTeams.length === 0) {

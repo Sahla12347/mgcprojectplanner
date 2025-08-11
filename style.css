@@ -114,11 +114,11 @@ p {
 }
 
 /* New: Download Page button style */
-#downloadPageBtn, .back-button {
+#downloadPageBtn, #downloadDashboardBtn, .back-button { /* Adjusted to include dashboard download button */
     background-color: #6c757d; /* Gray for download */
 }
 
-#downloadPageBtn:hover, .back-button:hover {
+#downloadPageBtn:hover, #downloadDashboardBtn:hover, .back-button:hover {
     background-color: #5a6268;
 }
 

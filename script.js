@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error('Autosave failed:', e);
         }
-    ;
+    };
     
     // Debounced version for autosaving on input
     const debouncedSave = debounce(saveCurrentProject, 1000);
@@ -744,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
             newTeamInput.focus();
             debouncedSave();
             renderProject(); // Re-render after changing to custom input
-        } else if (e.target.classList.contains('team-select') && e.target.value.startsWith("Gypsum - Custom Team")) {
+        } else if (e.target.classList.contains('team-select') && e.target.value === "Gypsum - Custom Team") { // Changed to strict equality
             // If "Gypsum - Custom Team" is selected, immediately switch to input mode
             const selectElement = e.target;
             const parent = selectElement.parentElement;

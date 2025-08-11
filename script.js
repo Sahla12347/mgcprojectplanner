@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             console.error('Autosave failed:', e);
         }
-    };
+    ;
     
     // Debounced version for autosaving on input
     const debouncedSave = debounce(saveCurrentProject, 1000);

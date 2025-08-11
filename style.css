@@ -104,13 +104,22 @@ p {
     background-color: #c82333;
 }
 
-/* New dashboard button style */
+/* Dashboard button style */
 #viewDashboardBtn {
     background-color: #17a2b8; /* Info color for dashboard */
 }
 
 #viewDashboardBtn:hover {
     background-color: #138496;
+}
+
+/* New: Download Page button style */
+#downloadPageBtn, .back-button {
+    background-color: #6c757d; /* Gray for download */
+}
+
+#downloadPageBtn:hover, .back-button:hover {
+    background-color: #5a6268;
 }
 
 

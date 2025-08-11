@@ -7,32 +7,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
     <link rel="stylesheet" href="style.css"> <!-- Reusing existing CSS -->
+    <!-- Include html2canvas for downloading page as image -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <i class="fas fa-chart-line logo-icon"></i>
             <h1>Team Activity Dashboard</h1>
-            <p>Overview of Gypsum Framing, Gypsum Board Installation, and Paint Team activities across all projects.</p>
+            <p>Overview of key team activities across all projects.</p>
             <button type="button" id="backToPlannerBtn" class="back-button"><i class="fas fa-arrow-left"></i> Back to Planner</button>
+            <button type="button" id="downloadDashboardBtn" class="back-button"><i class="fas fa-download"></i> Download Dashboard (Image)</button>
         </header>
 
-        <div class="team-calendars-container">
-            <!-- Calendars for specific teams will be rendered here by dashboard.js -->
-            <div id="gypsumFramingCalendar" class="team-calendar-section">
-                <h2>Gypsum - Framing Team Calendar</h2>
-                <div class="calendar-display"></div>
-            </div>
-
-            <div id="gypsumBoardInstallationCalendar" class="team-calendar-section">
-                <h2>Gypsum - Board Installation Team Calendar</h2>
-                <div class="calendar-display"></div>
-            </div>
-
-            <div id="paintTeamCalendar" class="team-calendar-section">
-                <h2>Paint Team Calendar</h2>
-                <div class="calendar-display"></div>
-            </div>
+        <!-- Dynamic container for team calendars -->
+        <div id="dynamicTeamCalendarsContainer" class="team-calendars-container">
+            <!-- Calendars for specific teams will be dynamically rendered here by dashboard.js -->
+            <p id="noTeamsMessage" style="text-align: center; margin-top: 50px; font-style: italic; color: #666; display: none;">
+                No Gypsum or Paint team data found across your projects. Add tasks to projects to see them here!
+            </p>
         </div>
     </div>
 
